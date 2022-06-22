@@ -12,37 +12,37 @@ export class UsersService {
   ) {}
 
   //Метод создания пользователя
-  async userCreate(user: CreateUserDto): Promise<User | HttpException> {
+  async userCreate(user: CreateUserDto): Promise<User> {
     try {
       const newUser = await this.userRepository.create(user);
       return await this.userRepository.save(newUser);
-    }catch (e){
-      return new HttpException(e, 400);
+    } catch (e) {
+      throw new HttpException(e, 400);
     }
   }
 
   //Метод обновления данных пользователя
-  async userUpdate( userId: number, user: UpdateUserDto): Promise<User | HttpException> {
+  async userUpdate(userId: number, user: UpdateUserDto): Promise<User> {
     try {
       await this.userRepository.update(userId, user);
       return await this.userRepository.findOneBy({ id: userId });
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 
   //Метод удаления пользователя
-  async userDelete(userId: number): Promise<string | HttpException> {
+  async userDelete(userId: number): Promise<string> {
     try {
       await this.userRepository.delete({ id: userId });
       return 'Пользователь удален';
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 
   //Метод получения всех пользователей
-  async getAll(): Promise<User[] | HttpException> {
+  async getAll(): Promise<User[]> {
     try {
       return await this.userRepository.find({
         relations: {
@@ -50,19 +50,19 @@ export class UsersService {
         },
       });
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 
   //Метод получения кокнретного пользователя по id
-  async getOne(userId: number): Promise<User | HttpException> {
+  async getOne(userId: number): Promise<User> {
     try {
       return await this.userRepository.findOne({
         relations: { subscription: true },
         where: { id: userId },
       });
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 }

@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
   Param,
   Post,
   Put,
@@ -18,27 +17,30 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Get()
-  async getAll(): Promise<User[] | HttpException> {
+  async getAll(): Promise<User[]> {
     return this.userService.getAll();
   }
 
   @Get(':id')
-  async getOne(@Param('id') userId: number): Promise<User | HttpException> {
+  async getOne(@Param('id') userId: number): Promise<User> {
     return this.userService.getOne(userId);
   }
 
   @Post()
-  async create(@Body() user: CreateUserDto): Promise<User | HttpException> {
+  async create(@Body() user: CreateUserDto): Promise<User> {
     return this.userService.userCreate(user);
   }
 
   @Put(':id')
-  async update(@Param('id') userId: number, @Body() updatedUser: UpdateUserDto): Promise<User | HttpException> {
+  async update(
+    @Param('id') userId: number,
+    @Body() updatedUser: UpdateUserDto,
+  ): Promise<User> {
     return this.userService.userUpdate(userId, updatedUser);
   }
 
   @Delete(':id')
-  async remove(@Param('id') userId: number): Promise<string | HttpException> {
+  async remove(@Param('id') userId: number): Promise<string> {
     return this.userService.userDelete(userId);
   }
 }

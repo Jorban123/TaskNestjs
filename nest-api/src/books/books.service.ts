@@ -15,17 +15,17 @@ export class BooksService {
   ) {}
 
   //Метод добавления книги
-  async addBook(book: AddBookDto): Promise<Book | HttpException> {
+  async addBook(book: AddBookDto): Promise<Book> {
     try {
       const newBook = await this.BookRepository.create(book);
       return await this.BookRepository.save(newBook);
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 
   //Метод добавления книги пользователю
-  async giveBook(giveBookDto: GiveBookDto): Promise<string | HttpException> {
+  async giveBook(giveBookDto: GiveBookDto): Promise<string> {
     try {
       const userId = giveBookDto.userId;
       const bookId = giveBookDto.bookId;
@@ -37,25 +37,32 @@ export class BooksService {
         relations: { user: true },
         where: { id: bookId },
       });
-      if (!book) return new HttpException('Данной книги нет', 400);
-      if (book.user != null)
-        return new HttpException('Данная книга уже занята', 400);
-      if (!user) return new HttpException('Пользователь не существует', 400);
-      if (user.countBooks === 5)
-        return new HttpException('У Вас максимальное количество книг', 400);
-      if (user.subscription == null)
-        return new HttpException('У Вас нет подписки', 400);
+      if (!book) {
+        throw new HttpException('Данной книги нет', 400);
+      }
+      if (book.user != null) {
+        throw new HttpException('Данная книга уже занята', 400);
+      }
+      if (!user) {
+        throw new HttpException('Пользователь не существует', 400);
+      }
+      if (user.countBooks === 5) {
+        throw new HttpException('У Вас максимальное количество книг', 400);
+      }
+      if (user.subscription == null) {
+        throw new HttpException('У Вас нет подписки', 400);
+      }
 
       await this.BookRepository.update(bookId, { user: user });
       await this.UserRepository.increment({ id: userId }, 'countBooks', 1);
       return 'Книга успешно выдана';
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 
   //Метод возвращения книги обратно
-  async returnBook(returnBookDto: ReturnBookDto): Promise<string | HttpException> {
+  async returnBook(returnBookDto: ReturnBookDto): Promise<string> {
     try {
       const userId = returnBookDto.userId;
       const bookId = returnBookDto.bookId;
@@ -63,15 +70,20 @@ export class BooksService {
         relations: { user: true },
         where: { id: bookId },
       });
-      if (!book) return new HttpException('Данной книги нет', 400);
-      if (!book.user) return new HttpException('Книга не взята', 400);
-      if (book.user.id != userId)
-        return new HttpException('Книга принадлежит не Вам', 400);
+      if (!book) {
+        throw new HttpException('Данной книги нет', 400);
+      }
+      if (!book.user) {
+        throw new HttpException('Книга не взята', 400);
+      }
+      if (book.user.id != userId) {
+        throw new HttpException('Книга принадлежит не Вам', 400);
+      }
       await this.BookRepository.update(bookId, { user: null });
       await this.UserRepository.decrement({ id: userId }, 'countBooks', 1);
       return 'Книга успешно возвращена';
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 }

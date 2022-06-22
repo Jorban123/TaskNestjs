@@ -13,20 +13,21 @@ export class SubcriptionServices {
   ) {}
 
   //Метод покупки абонемента
-  async subscribe(userId: number): Promise<string | HttpException> {
+  async subscribe(userId: number): Promise<string> {
     try {
       const user = await this.UserRepository.findOne({
         relations: { subscription: true },
         where: { id: userId },
       });
-      if (user.subscription)
-        return new HttpException('У Вас уже есть подписка', 400);
+      if (user.subscription) {
+        throw new HttpException('У Вас уже есть подписка', 400);
+      }
       const sub = new Subscription();
       sub.user = user;
       await this.SubscriptionRepository.save(sub);
       return 'Абонемент выдан';
     } catch (e) {
-      return new HttpException(e, 400);
+      throw new HttpException(e, 400);
     }
   }
 }
